@@ -640,9 +640,12 @@ extension WindowManager: WindowTransitionTarget {
             markScreen(screen, forReflowWithChange: .add(window: window))
             window.focus()
         case let .moveWindowToSpaceAtIndex(window, spaceIndex):
+            var spaces: [Space] = []
+            for screenManager in screens.screenManagers {
+                spaces.append(contentsOf: CGSpacesInfo<Window>.spacesForScreen(screenManager.screen!, includeOnlyUserSpaces: true)!)
+            }
             guard
                 let screen = window.screen(),
-                let spaces = CGSpacesInfo<Window>.spacesForScreen(screen, includeOnlyUserSpaces: true),
                 spaceIndex < spaces.count
             else {
                 return
