@@ -312,9 +312,6 @@ extension AXWindow: WindowType {
     func move(toSpace spaceID: CGSSpaceID) {
         let ids = [cgID()]
 
-//        Bug fixed issue 1192
-//        Need to add in Pods/Silica/CGSSpace.h:
-//        CG_EXTERN void CGSMoveWindowsToManagedSpace(CGSConnectionID connection, CFArrayRef windowIds, CGSSpaceID spaceId);
         CGSMoveWindowsToManagedSpace(CGSMainConnectionID(), ids as CFArray, spaceID)
 
         if UserConfiguration.shared.followWindowsThrownBetweenSpaces() {
