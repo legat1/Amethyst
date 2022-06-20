@@ -241,7 +241,7 @@ final class ScreenManager<Delegate: ScreenManagerDelegate>: NSObject, Codable {
     }
 
     func selectLayout(_ layoutString: String) {
-        guard let layoutIndex = layouts.index(where: { type(of: $0).layoutKey == layoutString }) else {
+        guard let layoutIndex = layouts.index(where: { $0.layoutKey == layoutString }) else {
             return
         }
 
@@ -313,14 +313,14 @@ final class ScreenManager<Delegate: ScreenManagerDelegate>: NSObject, Codable {
             return
         }
 
-        let screenFrame = screen.frameIncludingDockAndMenu()
+        let screenFrame = screen.frame()
         let screenCenter = CGPoint(x: screenFrame.midX, y: screenFrame.midY)
         let windowOrigin = CGPoint(
             x: screenCenter.x - layoutNameWindow.frame.width / 2.0,
             y: screenCenter.y - layoutNameWindow.frame.height / 2.0
         )
 
-        layoutNameWindow.layoutNameField?.stringValue = currentLayout.flatMap({ type(of: $0).layoutName }) ?? "None"
+        layoutNameWindow.layoutNameField?.stringValue = currentLayout.flatMap({ $0.layoutName }) ?? "None"
         layoutNameWindow.layoutDescriptionLabel?.stringValue = currentLayout?.layoutDescription ?? ""
         layoutNameWindow.setFrameOrigin(NSPointFromCGPoint(windowOrigin))
 

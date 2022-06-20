@@ -334,8 +334,9 @@ final class WindowManager<Application: ApplicationType>: NSObject, Codable {
         guard let screen = window.screen() else {
             return
         }
+        let space = CGWindowsInfo.windowSpace(window)
 
-        let windowChange: Change = windows.isWindowFloating(window) ? .unknown : .add(window: window)
+        let windowChange: Change = windows.isWindowFloating(window) || space == nil ? .unknown : .add(window: window)
         markScreen(screen, forReflowWithChange: windowChange)
     }
 
@@ -658,9 +659,16 @@ extension WindowManager: WindowTransitionTarget {
             }
 
             let targetSpace = spaces[spaceIndex]
-
+            guard let targetScreen = CGSpacesInfo<Window>.screenForSpace(space: targetSpace) else {
+                return
+            }
             markScreen(screen, forReflowWithChange: .remove(window: window))
             window.move(toSpace: targetSpace.id)
+            // necessary to set frame here as window is expected to be at origin relative to targe screen when moved, can be improved.
+            let newFrame = targetScreen.frameWithoutDockOrMenu()
+            window.setFrame(newFrame, withThreshold: CGSize(width: 25, height: 25))
+            markScreen(targetScreen, forReflowWithChange: .add(window: window))
+            window.focus()
         case .resetFocus:
             if let screen = screens.screenManagers.first?.screen {
                 executeTransition(.focusScreen(screen))
@@ -670,6 +678,10 @@ extension WindowManager: WindowTransitionTarget {
 
     func isWindowFloating(_ window: Window) -> Bool {
         return windows.isWindowFloating(window)
+    }
+
+    func currentLayout() -> Layout<Application.Window>? {
+        return focusedScreenManager()?.currentLayout
     }
 
     func activeWindows(on screen: Screen) -> [Window] {
